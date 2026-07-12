@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>うんどう会 R8年度</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Shippori+Mincho:wght@700;800&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;min-height:100%;overflow-x:hidden;}
+body{font-family:'Noto Sans JP',sans-serif;background:#0a0a14;color:#f0ede8;}
+
+#navbar{
+  position:fixed;top:0;left:0;right:0;z-index:8000;
+  height:56px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 1.4rem;
+  background:rgba(10,10,20,.72);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border-bottom:1px solid rgba(255,255,255,.07);
+  opacity:0;animation:navIn .5s 4.6s ease forwards;
+}
+@keyframes navIn{to{opacity:1;}}
+.nav-logo{display:flex;align-items:center;gap:.7rem;text-decoration:none;}
+.nav-logo-img{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.nav-logo-text{font-family:'Shippori Mincho',serif;font-size:.95rem;color:rgba(255,255,255,.8);letter-spacing:.12em;line-height:1.2;}
+.nav-logo-sub{font-size:.6rem;color:rgba(255,200,100,.6);letter-spacing:.16em;display:block;}
+.nav-menu-btn{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;cursor:pointer;padding:.5rem .4rem;color:rgba(255,255,255,.7);transition:color .2s;}
+.nav-menu-btn:hover{color:#ffcf60;}
+.hamburger-bars{display:flex;flex-direction:column;gap:5px;width:22px;}
+.hamburger-bars span{display:block;width:22px;height:2px;background:currentColor;border-radius:2px;transition:transform .3s,opacity .3s;transform-origin:center;}
+.nav-menu-btn .menu-label{font-size:.58rem;letter-spacing:.1em;margin-top:1px;}
+.nav-menu-btn.is-open .hamburger-bars span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.nav-menu-btn.is-open .hamburger-bars span:nth-child(2){opacity:0;transform:scaleX(0);}
+.nav-menu-btn.is-open .hamburger-bars span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+
+#nav-drawer{
+  position:fixed;top:56px;right:0;width:min(300px,90vw);
+  background:rgba(12,12,24,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-left:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08);
+  border-radius:0 0 0 16px;padding:1rem 0 1.4rem;z-index:7999;
+  transform:translateX(110%);transition:transform .35s cubic-bezier(.22,1,.36,1);
+  box-shadow:-12px 12px 40px rgba(0,0,0,.5);
+}
+#nav-drawer.open{transform:translateX(0);}
+.drawer-menu{list-style:none;}
+.drawer-menu li{border-bottom:1px solid rgba(255,255,255,.05);}
+.drawer-menu li:last-child{border-bottom:none;}
+.drawer-menu button{width:100%;display:flex;align-items:center;gap:.9rem;padding:.9rem 1.4rem;background:none;border:none;cursor:pointer;color:rgba(255,255,255,.7);font-family:inherit;font-size:.92rem;letter-spacing:.06em;text-align:left;transition:background .15s,color .15s;}
+.drawer-menu button:hover{background:rgba(255,200,100,.07);color:#ffcf60;}
+.drawer-menu .menu-num{font-size:.68rem;color:rgba(255,200,100,.45);letter-spacing:.1em;min-width:1.4rem;font-family:'Shippori Mincho',serif;}
+.drawer-menu .menu-placeholder{color:rgba(255,255,255,.3);font-style:italic;font-size:.82rem;}
+#nav-overlay{display:none;position:fixed;inset:0;z-index:7998;background:rgba(0,0,0,.4);}
+#nav-overlay.show{display:block;}
+
+#modal-overlay{display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:1rem;}
+#modal-overlay.show{display:flex;}
+.modal-box{position:relative;width:100%;max-width:780px;max-height:88svh;background:#0f0f1e;border:1px solid rgba(255,255,255,.1);border-radius:20px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 32px 80px rgba(0,0,0,.7);animation:modalIn .32s cubic-bezier(.22,1,.36,1);}
+@keyframes modalIn{from{opacity:0;transform:translateY(28px) scale(.97);}to{opacity:1;transform:translateY(0) scale(1);}}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.4rem;border-bottom:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.03);flex-shrink:0;}
+.modal-title{font-family:'Shippori Mincho',serif;font-size:1.05rem;color:rgba(255,255,255,.88);letter-spacing:.1em;display:flex;align-items:center;gap:.6rem;}
+.modal-num{font-size:.7rem;color:rgba(255,200,100,.6);border:1px solid rgba(255,200,100,.25);padding:.15rem .5rem;border-radius:4px;letter-spacing:.08em;}
+.modal-close{background:none;border:none;cursor:pointer;color:rgba(255,255,255,.4);font-size:1.3rem;line-height:1;padding:.3rem .5rem;transition:color .2s;border-radius:6px;}
+.modal-close:hover{color:#ff6b6b;background:rgba(255,100,100,.1);}
+.modal-body{overflow-y:auto;padding:1.8rem 1.6rem;flex:1;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.12) transparent;}
+.modal-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:260px;gap:1rem;color:rgba(255,255,255,.25);text-align:center;}
+.modal-placeholder .ph-icon{font-size:3.5rem;opacity:.4;}
+.modal-placeholder .ph-title{font-size:1rem;color:rgba(255,255,255,.35);letter-spacing:.1em;}
+.modal-placeholder .ph-sub{font-size:.8rem;color:rgba(255,255,255,.2);line-height:1.8;}
+.map-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(3,80px);gap:4px;border-radius:12px;overflow:hidden;margin-bottom:1.2rem;}
+.map-cell{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:rgba(255,255,255,.3);letter-spacing:.06em;border-radius:4px;}
+.map-cell.highlight{background:rgba(255,200,100,.1);border-color:rgba(255,200,100,.25);color:rgba(255,200,100,.7);}
+
+#intro{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:#0a0a14;pointer-events:all;}
+#poster-wrap{width:min(420px,88vw);aspect-ratio:2/3;position:relative;animation:posterReveal 3.2s cubic-bezier(.22,1,.36,1) forwards,posterFadeOut 1s 3.4s ease-in forwards;transform-origin:center center;}
+@keyframes posterReveal{0%{transform:scale(.55);opacity:0;}30%{opacity:1;}80%{transform:scale(1.08);opacity:1;}100%{transform:scale(1.18);opacity:1;}}
+@keyframes posterFadeOut{0%{opacity:1;}100%{opacity:0;}}
+#poster-wrap svg{width:100%;height:100%;border-radius:8px;box-shadow:0 0 80px rgba(255,180,80,.35),0 0 200px rgba(255,100,60,.2);display:block;}
+#intro{animation:introDismiss 0s 4.5s forwards;}
+@keyframes introDismiss{to{opacity:0;pointer-events:none;visibility:hidden;}}
+
+#hero{position:relative;min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:56px 1.5rem 4rem;overflow:hidden;}
+#hero-bg{position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse at 30% 20%,rgba(255,140,60,.18) 0%,transparent 55%),radial-gradient(ellipse at 70% 80%,rgba(80,120,255,.22) 0%,transparent 55%),radial-gradient(ellipse at 50% 50%,rgba(255,60,120,.1) 0%,transparent 70%);background-color:#0d0d1a;}
+#hero-bg::before{content:'';position:absolute;inset:0;z-index:1;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");background-size:200px;opacity:.5;pointer-events:none;}
+#hero>*{position:relative;z-index:1;}
+.hero-content{width:100%;max-width:900px;opacity:0;animation:heroIn .9s 4.5s cubic-bezier(.22,1,.36,1) forwards;}
+@keyframes heroIn{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+
+/* ===== COUNTDOWN ===== */
+.countdown-section{text-align:center;padding:3.5rem 0 2rem;}
+.countdown-label{font-size:.8rem;letter-spacing:.22em;color:rgba(255,200,100,.7);text-transform:uppercase;margin-bottom:1rem;}
+.countdown-display{display:flex;align-items:baseline;justify-content:center;gap:.4rem;line-height:1;}
+.countdown-ato{font-family:'Shippori Mincho',serif;font-size:clamp(2.5rem,8vw,5rem);color:rgba(255,255,255,.55);letter-spacing:.04em;}
+.countdown-num{font-family:'Shippori Mincho',serif;font-size:clamp(5rem,18vw,11rem);font-weight:800;background:linear-gradient(135deg,#ffcf60 0%,#ff8c40 50%,#ff4f7b 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.02em;line-height:1;}
+.countdown-nichi{font-family:'Shippori Mincho',serif;font-size:clamp(2rem,7vw,4.5rem);color:rgba(255,255,255,.55);letter-spacing:.04em;}
+.countdown-sub{margin-top:.5rem;font-size:1rem;color:rgba(255,255,255,.35);letter-spacing:.14em;font-variant-numeric:tabular-nums;min-height:1.6em;}
+.countdown-date{margin-top:.6rem;font-size:.88rem;color:rgba(255,255,255,.4);letter-spacing:.1em;}
+
+.split-panel{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:2rem;}
+@media(max-width:640px){.split-panel{grid-template-columns:1fr;}}
+.panel{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:16px;overflow:hidden;backdrop-filter:blur(12px);}
+.panel-header{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.2rem;border-bottom:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.03);}
+.panel-title{font-size:.82rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,200,100,.8);}
+.panel-count{font-size:.72rem;background:rgba(255,200,100,.15);color:rgba(255,200,100,.8);padding:.18rem .55rem;border-radius:999px;}
+.schedule-list{list-style:none;max-height:340px;overflow-y:auto;padding:.4rem 0;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.12) transparent;}
+.schedule-item{display:flex;align-items:flex-start;gap:.9rem;padding:.75rem 1.2rem;border-bottom:1px solid rgba(255,255,255,.05);transition:background .15s;}
+.schedule-item:last-child{border-bottom:none;}
+.schedule-item:hover{background:rgba(255,255,255,.04);}
+.sch-date{flex-shrink:0;text-align:center;background:rgba(255,200,100,.1);border:1px solid rgba(255,200,100,.2);border-radius:8px;padding:.35rem .55rem;min-width:52px;}
+.sch-month{font-size:.65rem;color:rgba(255,200,100,.7);letter-spacing:.06em;}
+.sch-day{font-size:1.1rem;font-weight:700;color:#ffcf60;line-height:1;}
+.sch-dow{font-size:.6rem;color:rgba(255,255,255,.4);}
+.sch-title{font-size:.88rem;font-weight:500;color:rgba(255,255,255,.88);margin-bottom:.2rem;}
+.sch-note{font-size:.75rem;color:rgba(255,255,255,.4);}
+.notice-list{list-style:none;max-height:340px;overflow-y:auto;padding:.4rem 0;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.12) transparent;}
+.notice-item{display:flex;flex-direction:column;gap:.3rem;padding:.8rem 1.2rem;border-bottom:1px solid rgba(255,255,255,.05);transition:background .15s;}
+.notice-item:last-child{border-bottom:none;}
+.notice-item:hover{background:rgba(255,255,255,.04);}
+.notice-meta{display:flex;align-items:center;gap:.6rem;}
+.notice-tag{font-size:.65rem;font-weight:700;letter-spacing:.08em;padding:.14rem .5rem;border-radius:4px;}
+.tag-info{background:rgba(80,160,255,.2);color:#7bbfff;}
+.tag-important{background:rgba(255,80,80,.2);color:#ff8080;}
+.tag-update{background:rgba(80,220,140,.2);color:#6edba0;}
+.notice-date{font-size:.7rem;color:rgba(255,255,255,.3);}
+.notice-title{font-size:.88rem;font-weight:500;color:rgba(255,255,255,.88);}
+.notice-body{font-size:.78rem;color:rgba(255,255,255,.45);line-height:1.6;}
+.admin-toggle{display:flex;align-items:center;gap:.5rem;margin-top:1.2rem;cursor:pointer;color:rgba(255,255,255,.3);font-size:.78rem;letter-spacing:.08em;width:fit-content;margin-left:auto;user-select:none;transition:color .2s;}
+.admin-toggle:hover{color:rgba(255,255,255,.6);}
+.admin-toggle svg{width:14px;height:14px;fill:currentColor;transition:transform .3s;}
+.admin-toggle.open svg{transform:rotate(180deg);}
+.admin-box{display:none;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:1.2rem;margin-top:.6rem;gap:.9rem;}
+.admin-box.visible{display:flex;flex-direction:column;}
+.admin-box label{font-size:.72rem;letter-spacing:.1em;color:rgba(255,200,100,.7);margin-bottom:.3rem;display:block;}
+.admin-box input,.admin-box textarea,.admin-box select{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#f0ede8;font-family:inherit;font-size:.85rem;padding:.55rem .8rem;outline:none;transition:border-color .2s;resize:vertical;}
+.admin-box input:focus,.admin-box textarea:focus,.admin-box select:focus{border-color:rgba(255,200,100,.45);}
+.admin-btn{margin-top:.2rem;background:linear-gradient(135deg,#ffcf60,#ff8c40);color:#0a0a14;font-family:inherit;font-weight:700;font-size:.82rem;letter-spacing:.08em;border:none;border-radius:8px;padding:.65rem 1.2rem;cursor:pointer;transition:opacity .2s,transform .15s;}
+.admin-btn:hover{opacity:.85;transform:translateY(-1px);}
+.hero-footer{margin-top:2.5rem;text-align:center;font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.12em;padding-bottom:1rem;}
+</style>
+</head>
+<body>
+
+<nav id="navbar">
+  <a class="nav-logo" href="#">
+    <div class="nav-logo-img">
+      <img src="data:image/png;base64,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" style="width:36px;height:36px;object-fit:contain;filter:invert(1);display:block;" alt="ロゴ"/>
+    </div>
+    <div class="nav-logo-text">
+      浜松北高等学校
+      <span class="nav-logo-sub">HAMAMATSU KITA HIGH SCHOOL</span>
+    </div>
+  </a>
+  <button class="nav-menu-btn" id="menuBtn" onclick="toggleDrawer()" aria-label="メニュー">
+    <div class="hamburger-bars"><span></span><span></span><span></span></div>
+    <span class="menu-label" id="menuLabel">メニュー</span>
+  </button>
+</nav>
+
+<div id="nav-overlay" onclick="closeDrawer()"></div>
+<div id="nav-drawer">
+  <ul class="drawer-menu">
+    <li><button onclick="openModal('about')"><span class="menu-num">①</span><span>R8年度うんどう会について</span></button></li>
+    <li><button onclick="openModal('program')"><span class="menu-num">②</span><span>競技一覧・プログラム</span></button></li>
+    <li><button onclick="openModal('exhibit')"><span class="menu-num">③</span><span>凸・ST紹介</span></button></li>
+    <li><button onclick="openModal('map')"><span class="menu-num">④</span><span>校内案内図 <span class="menu-placeholder">（仮置き）</span></span></button></li>
+    <li><button onclick="openModal('reserve')"><span class="menu-num">⑤</span><span class="menu-placeholder">（準備中）</span></button></li>
+  </ul>
+</div>
+
+<div id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal-box" id="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">
+        <span class="modal-num" id="modal-num"></span>
+        <span id="modal-title-text"></span>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<div id="intro">
+  <div id="poster-wrap">
+    <svg viewBox="0 0 280 420" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="pg1" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#1a0a2e"/><stop offset="100%" stop-color="#0d1a3a"/>
+        </linearGradient>
+        <radialGradient id="glow1" cx="50%" cy="40%" r="55%">
+          <stop offset="0%" stop-color="#ff8c40" stop-opacity=".35"/><stop offset="100%" stop-color="#ff8c40" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="glow2" cx="30%" cy="70%" r="45%">
+          <stop offset="0%" stop-color="#6080ff" stop-opacity=".3"/><stop offset="100%" stop-color="#6080ff" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <rect width="280" height="420" fill="url(#pg1)"/>
+      <rect width="280" height="420" fill="url(#glow1)"/>
+      <rect width="280" height="420" fill="url(#glow2)"/>
+      <circle cx="200" cy="80" r="90" fill="none" stroke="rgba(255,200,100,.12)" stroke-width="1"/>
+      <circle cx="200" cy="80" r="65" fill="none" stroke="rgba(255,200,100,.08)" stroke-width="1"/>
+      <circle cx="70"  cy="340" r="80" fill="none" stroke="rgba(100,140,255,.12)" stroke-width="1"/>
+      <line x1="0" y1="200" x2="280" y2="100" stroke="rgba(255,255,255,.04)" stroke-width="1"/>
+      <line x1="0" y1="230" x2="280" y2="130" stroke="rgba(255,255,255,.03)" stroke-width="1"/>
+      <text x="28" y="140" font-family="serif" font-size="11" fill="rgba(255,200,100,.7)" letter-spacing="6">R8年度</text>
+      <text x="26" y="190" font-family="serif" font-size="36" font-weight="800" fill="white" opacity=".92">うんどう会</text>
+      <text x="26" y="218" font-family="serif" font-size="10" fill="rgba(255,255,255,.5)" letter-spacing="2">HAMAMATSU KITA</text>
+      <text x="26" y="232" font-family="serif" font-size="10" fill="rgba(255,255,255,.5)" letter-spacing="2">UNDOKAI</text>
+      <text x="28" y="270" font-family="sans-serif" font-size="10" fill="rgba(255,255,255,.4)" letter-spacing="2">開催日</text>
+      <text x="28" y="288" font-family="serif" font-size="13.5" fill="rgba(255,200,100,.9)">令和8年</text>
+      <text x="28" y="306" font-family="serif" font-size="13.5" fill="rgba(255,200,100,.9)">9月24日（木）・25日（金）</text>
+      <rect x="0" y="390" width="280" height="30" fill="rgba(255,200,100,.07)"/>
+      <text x="28" y="409" font-family="sans-serif" font-size="9" fill="rgba(255,255,255,.3)" letter-spacing="3">HAMAMATSU KITA HIGH SCHOOL</text>
+      <circle cx="220" cy="340" r="1.2" fill="rgba(255,255,255,.5)"/>
+      <circle cx="240" cy="320" r=".8" fill="rgba(255,255,255,.4)"/>
+      <circle cx="60" cy="60" r="1" fill="rgba(255,255,255,.3)"/>
+      <circle cx="90" cy="40" r=".7" fill="rgba(255,255,255,.4)"/>
+    </svg>
+  </div>
+</div>
+
+<div id="hero">
+  <div id="hero-bg"></div>
+  <div class="hero-content">
+
+    <!-- COUNTDOWN -->
+    <div class="countdown-section">
+      <div class="countdown-label">開会まで</div>
+      <div class="countdown-display">
+        <span class="countdown-ato" id="cdAto">あと</span>
+        <span class="countdown-num" id="cdNum">—</span>
+        <span class="countdown-nichi" id="cdUnit">日</span>
+      </div>
+      <div class="countdown-sub" id="cdSub"></div>
+      <div class="countdown-date">令和8年 9月24日（木）8:30 開会 ・ 25日（金）</div>
+    </div>
+
+    <!-- SPLIT PANEL -->
+    <div class="split-panel">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">📅 今後の日程</span>
+          <span class="panel-count" id="sch-count">0件</span>
+        </div>
+        <ul class="schedule-list" id="scheduleList"></ul>
+        <div style="padding:.8rem 1.2rem .9rem;">
+          <div class="admin-toggle" id="schToggle" onclick="toggleAdmin('sch')">
+            <svg viewBox="0 0 20 20"><path d="M5 8l5 5 5-5z"/></svg>
+            運営用：日程追加
+          </div>
+          <div class="admin-box" id="schAdmin">
+            <div><label>日付</label><input type="date" id="schDate"/></div>
+            <div><label>タイトル</label><input type="text" id="schTitle" placeholder="例：全体ミーティング"/></div>
+            <div><label>補足（任意）</label><input type="text" id="schNote" placeholder="例：体育館集合 13:00〜"/></div>
+            <button class="admin-btn" onclick="addSchedule()">追加する</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">📢 お知らせ</span>
+          <span class="panel-count" id="ntc-count">0件</span>
+        </div>
+        <ul class="notice-list" id="noticeList"></ul>
+        <div style="padding:.8rem 1.2rem .9rem;">
+          <div class="admin-toggle" id="ntcToggle" onclick="toggleAdmin('ntc')">
+            <svg viewBox="0 0 20 20"><path d="M5 8l5 5 5-5z"/></svg>
+            運営用：お知らせ追加
+          </div>
+          <div class="admin-box" id="ntcAdmin">
+            <div><label>種別</label><select id="ntcTag"><option value="info">お知らせ</option><option value="important">重要</option><option value="update">更新</option></select></div>
+            <div><label>タイトル</label><input type="text" id="ntcTitle" placeholder="例：参加申込開始のお知らせ"/></div>
+            <div><label>本文（任意）</label><textarea id="ntcBody" rows="2" placeholder="詳細を入力..."></textarea></div>
+            <button class="admin-btn" onclick="addNotice()">追加する</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 凸アルバム -->
+    <div class="panel" style="margin-top:1.5rem;">
+      <div class="panel-header">
+        <span class="panel-title">📸 凸アルバム</span>
+        <span class="panel-count" id="alb-count">0枚</span>
+      </div>
+      <div id="albumBlockGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:1rem;"></div>
+    </div>
+
+    <div class="hero-footer">© 令和8年度 浜松北高等学校 うんどう会運営委員会</div>
+  </div>
+</div>
+
+<script>
+// ===== COUNTDOWN =====
+(function(){
+  const target = new Date('2026-09-24T08:30:00');
+  function update(){
+    const now  = new Date();
+    const diff = target - now;
+    const ato  = document.getElementById('cdAto');
+    const num  = document.getElementById('cdNum');
+    const unit = document.getElementById('cdUnit');
+    const sub  = document.getElementById('cdSub');
+    const pad  = n => String(n).padStart(2,'0');
+
+    if(diff <= 0){
+      ato.textContent  = '';
+      num.textContent  = '開会';
+      unit.textContent = '';
+      sub.textContent  = '開会しました！';
+      return;
+    }
+    const totalSec = Math.floor(diff / 1000);
+    const days  = Math.floor(totalSec / 86400);
+    const hours = Math.floor((totalSec % 86400) / 3600);
+    const mins  = Math.floor((totalSec % 3600) / 60);
+    const secs  = totalSec % 60;
+
+    if(days > 0){
+      ato.textContent  = 'あと';
+      num.textContent  = days;
+      unit.textContent = '日';
+      sub.textContent  = `${pad(hours)}時間 ${pad(mins)}分 ${pad(secs)}秒`;
+    } else {
+      ato.textContent  = 'あと';
+      num.textContent  = `${pad(hours)}:${pad(mins)}:${pad(secs)}`;
+      unit.textContent = '';
+      sub.textContent  = '本日開会！';
+    }
+  }
+  update();
+  setInterval(update, 1000);
+})();
+
+// ===== ACCORDION helpers =====
+function toggleAcc(btn){
+  const isOpen = btn.getAttribute('aria-expanded')==='true';
+  btn.closest('.modal-body').querySelectorAll('[aria-expanded="true"]').forEach(b=>{if(b!==btn){b.setAttribute('aria-expanded','false');b.nextElementSibling.classList.remove('open');}});
+  btn.setAttribute('aria-expanded',isOpen?'false':'true');
+  btn.nextElementSibling.classList.toggle('open',!isOpen);
+}
+function toggleBlk(btn){
+  const isOpen=btn.getAttribute('aria-expanded')==='true';
+  btn.closest('.modal-body').querySelectorAll('.blk-btn[aria-expanded="true"]').forEach(b=>{if(b!==btn){b.setAttribute('aria-expanded','false');b.nextElementSibling.classList.remove('open');}});
+  btn.setAttribute('aria-expanded',isOpen?'false':'true');
+  btn.nextElementSibling.classList.toggle('open',!isOpen);
+}
+function toggleInner(btn){
+  const isOpen=btn.getAttribute('aria-expanded')==='true';
+  btn.closest('.blk-panel').querySelectorAll('.inner-btn[aria-expanded="true"]').forEach(b=>{if(b!==btn){b.setAttribute('aria-expanded','false');b.nextElementSibling.classList.remove('open');}});
+  btn.setAttribute('aria-expanded',isOpen?'false':'true');
+  btn.nextElementSibling.classList.toggle('open',!isOpen);
+}
+
+// ===== MODAL PAGES =====
+const MODAL_PAGES = {
+  about:{num:'①',title:'R8年度うんどう会について',html:`
+    <style>
+      .accordion-item{border-radius:12px;overflow:hidden;margin-bottom:.8rem;}
+      .accordion-item:last-child{margin-bottom:0;}
+      .acc-slogan-btn{width:100%;border:none;cursor:pointer;padding:0;background:none;text-align:left;position:relative;overflow:hidden;border-radius:12px;}
+      .acc-slogan-inner{position:relative;background:linear-gradient(125deg,#1a0e2e 0%,#0d1a3a 50%,#1a1000 100%);border:1px solid rgba(255,200,100,.2);border-radius:12px;padding:1.4rem 1.6rem;display:flex;align-items:center;justify-content:space-between;transition:border-color .2s;overflow:hidden;}
+      .acc-slogan-btn:hover .acc-slogan-inner{border-color:rgba(255,200,100,.5);}
+      .acc-slogan-inner::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(255,180,60,.12) 0%,transparent 60%),radial-gradient(ellipse at 80% 50%,rgba(80,100,255,.1) 0%,transparent 60%);pointer-events:none;}
+      .acc-slogan-left{position:relative;z-index:1;}
+      .acc-slogan-eyebrow{font-size:.65rem;letter-spacing:.22em;color:rgba(255,200,100,.6);margin-bottom:.4rem;}
+      .acc-slogan-title{font-family:'Shippori Mincho',serif;font-size:1.05rem;color:rgba(255,255,255,.9);letter-spacing:.12em;}
+      .acc-chevron{position:relative;z-index:1;width:22px;height:22px;flex-shrink:0;border:1px solid rgba(255,200,100,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;color:rgba(255,200,100,.7);font-size:.75rem;transition:transform .3s,background .2s;}
+      .acc-slogan-btn[aria-expanded="true"] .acc-chevron{transform:rotate(180deg);background:rgba(255,200,100,.15);}
+      .acc-plain-btn{width:100%;border:none;cursor:pointer;text-align:left;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:1rem 1.4rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;transition:background .2s,border-color .2s;font-family:inherit;}
+      .acc-plain-btn:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.14);}
+      .acc-plain-btn[aria-expanded="true"]{background:rgba(255,255,255,.06);border-bottom-left-radius:0;border-bottom-right-radius:0;border-bottom-color:transparent;}
+      .acc-plain-left{display:flex;align-items:center;gap:.8rem;}
+      .acc-plain-title{font-size:.92rem;color:rgba(255,255,255,.8);letter-spacing:.06em;font-family:'Noto Sans JP',sans-serif;}
+      .acc-plain-chevron{flex-shrink:0;color:rgba(255,255,255,.3);font-size:.8rem;transition:transform .3s;}
+      .acc-plain-btn[aria-expanded="true"] .acc-plain-chevron{transform:rotate(180deg);}
+      .acc-panel{display:none;}
+      .acc-panel.open{display:block;}
+      .acc-slogan-panel{background:linear-gradient(135deg,rgba(26,14,46,.6),rgba(13,26,58,.6));border:1px solid rgba(255,200,100,.15);border-top:none;border-radius:0 0 12px 12px;padding:2rem 1.6rem 2.2rem;text-align:center;}
+      .slogan-placeholder-badge{display:inline-block;font-size:.65rem;letter-spacing:.18em;border:1px solid rgba(255,200,100,.3);color:rgba(255,200,100,.55);padding:.2rem .7rem;border-radius:999px;margin-bottom:1.4rem;}
+      .slogan-main{font-family:'Shippori Mincho',serif;font-size:clamp(1.5rem,5vw,2.6rem);letter-spacing:.2em;background:linear-gradient(135deg,#ffcf60,#ff8c40,#ff4f7b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.6rem;line-height:1.4;}
+      .slogan-ruby{font-size:.78rem;color:rgba(255,255,255,.25);letter-spacing:.18em;margin-bottom:1.2rem;}
+      .slogan-desc{font-size:.82rem;color:rgba(255,255,255,.3);line-height:1.9;letter-spacing:.06em;border-top:1px solid rgba(255,255,255,.06);padding-top:1rem;margin-top:.4rem;}
+      .acc-plain-panel{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-top:none;border-radius:0 0 12px 12px;padding:1.4rem 1.6rem;}
+      .speaker-meta{display:flex;align-items:center;gap:.8rem;margin-bottom:1rem;padding-bottom:.8rem;border-bottom:1px solid rgba(255,255,255,.06);}
+      .speaker-avatar{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+      .speaker-name{font-size:.88rem;color:rgba(255,255,255,.7);letter-spacing:.06em;}
+      .speaker-role{font-size:.7rem;color:rgba(255,255,255,.3);margin-top:.1rem;}
+      .speaker-body{font-size:.85rem;color:rgba(255,255,255,.4);line-height:2;letter-spacing:.04em;font-style:italic;text-align:center;padding:1rem 0;}
+    </style>
+    <div class="accordion-item">
+      <button class="acc-slogan-btn" aria-expanded="false" onclick="toggleAcc(this)">
+        <div class="acc-slogan-inner">
+          <div class="acc-slogan-left"><div class="acc-slogan-eyebrow">SLOGAN</div><div class="acc-slogan-title">スローガンについて</div></div>
+          <div class="acc-chevron">▼</div>
+        </div>
+      </button>
+      <div class="acc-panel"><div class="acc-slogan-panel">
+        <div class="slogan-placeholder-badge">仮置き・決定次第更新</div>
+        <div class="slogan-main">○○○○○○</div>
+        <div class="slogan-ruby">— スローガン（仮） —</div>
+        <div class="slogan-desc">スローガンの説明・込められた想いなどを<br>ここに掲載予定です。</div>
+      </div></div>
+    </div>
+    <div class="accordion-item">
+      <button class="acc-plain-btn" aria-expanded="false" onclick="toggleAcc(this)">
+        <div class="acc-plain-left"><span>📜</span><span class="acc-plain-title">校長先生の言葉</span></div>
+        <span class="acc-plain-chevron">▼</span>
+      </button>
+      <div class="acc-panel"><div class="acc-plain-panel">
+        <div class="speaker-meta"><div class="speaker-avatar">👨‍💼</div><div><div class="speaker-name">○○ ○○ 校長</div><div class="speaker-role">浜松北高等学校 校長</div></div></div>
+        <div class="speaker-body">校長先生からのメッセージをここに掲載予定です。</div>
+      </div></div>
+    </div>
+    <div class="accordion-item">
+      <button class="acc-plain-btn" aria-expanded="false" onclick="toggleAcc(this)">
+        <div class="acc-plain-left"><span>🎤</span><span class="acc-plain-title">運営委員長の言葉</span></div>
+        <span class="acc-plain-chevron">▼</span>
+      </button>
+      <div class="acc-panel"><div class="acc-plain-panel">
+        <div class="speaker-meta"><div class="speaker-avatar">🧑‍🎓</div><div><div class="speaker-name">○○ ○○</div><div class="speaker-role">運営委員長</div></div></div>
+        <div class="speaker-body">運営委員長からのメッセージをここに掲載予定です。</div>
+      </div></div>
+    </div>
+  `},
+  program:{num:'②',title:'競技一覧・プログラム',html:`<div class="modal-placeholder"><div class="ph-icon">🏃</div><div class="ph-title">プログラム（仮置き）</div><div class="ph-sub">競技種目・タイムスケジュールなどを<br>ここに掲載予定です。</div></div>`},
+  exhibit:{num:'③',title:'凸・ST紹介',html:`
+    <style>
+      .blk-item{margin-bottom:.7rem;}.blk-item:last-child{margin-bottom:0;}
+      .blk-btn{width:100%;border:none;cursor:pointer;text-align:left;font-family:inherit;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:.95rem 1.3rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;transition:background .2s,border-color .2s;}
+      .blk-btn:hover{background:rgba(255,255,255,.08);}
+      .blk-btn[aria-expanded="true"]{border-bottom-left-radius:0;border-bottom-right-radius:0;background:rgba(255,200,100,.07);border-color:rgba(255,200,100,.25);border-bottom-color:transparent;}
+      .blk-left{display:flex;align-items:center;gap:.8rem;}
+      .blk-name{font-size:.92rem;color:rgba(255,255,255,.82);letter-spacing:.08em;}
+      .blk-chevron{flex-shrink:0;font-size:.75rem;color:rgba(255,255,255,.3);transition:transform .3s;}
+      .blk-btn[aria-expanded="true"] .blk-chevron{transform:rotate(180deg);color:rgba(255,200,100,.6);}
+      .blk-panel{display:none;background:rgba(255,255,255,.02);border:1px solid rgba(255,200,100,.15);border-top:none;border-radius:0 0 12px 12px;padding:.8rem;}
+      .blk-panel.open{display:block;}
+      .inner-item{margin-bottom:.5rem;}.inner-item:last-child{margin-bottom:0;}
+      .inner-btn{width:100%;border:none;cursor:pointer;text-align:left;font-family:inherit;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:9px;padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:.8rem;transition:background .18s;}
+      .inner-btn:hover{background:rgba(255,255,255,.07);}
+      .inner-btn[aria-expanded="true"]{border-bottom-left-radius:0;border-bottom-right-radius:0;background:rgba(255,255,255,.06);border-bottom-color:transparent;}
+      .inner-left{display:flex;align-items:center;gap:.65rem;}
+      .inner-title{font-size:.83rem;color:rgba(255,255,255,.75);letter-spacing:.06em;}
+      .inner-chevron{flex-shrink:0;font-size:.68rem;color:rgba(255,255,255,.25);transition:transform .3s;}
+      .inner-btn[aria-expanded="true"] .inner-chevron{transform:rotate(180deg);}
+      .inner-panel{display:none;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.06);border-top:none;border-radius:0 0 9px 9px;padding:1.1rem;}
+      .inner-panel.open{display:block;}
+      .illust-placeholder{width:100%;aspect-ratio:4/3;max-width:240px;margin:0 auto .9rem;background:rgba(255,255,255,.04);border:1.5px dashed rgba(255,255,255,.12);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;color:rgba(255,255,255,.2);font-size:.75rem;letter-spacing:.08em;}
+      .illust-placeholder .ill-icon{font-size:2rem;opacity:.35;}
+      .intro-placeholder{background:rgba(255,255,255,.03);border:1px dashed rgba(255,255,255,.1);border-radius:8px;padding:.9rem 1rem;font-size:.8rem;color:rgba(255,255,255,.25);line-height:1.8;letter-spacing:.06em;text-align:center;}
+    </style>
+    ${[{n:1,hr:'31,26,14HR',c:'#e03030'},{n:2,hr:'32,27,28HR',c:'#f07820'},{n:3,hr:'33,23,12HR',c:'#d4c000'},{n:4,hr:'34,29,13HR',c:'#e060a0'},{n:5,hr:'35,24,15HR',c:'#40b8d8'},{n:6,hr:'36,22,17HR',c:'#3060d0'},{n:7,hr:'37,21,16HR',c:'#d8d8d8'},{n:8,hr:'38,28,11HR',c:'#9040c0'},{n:9,hr:'39,25,19HR',c:'#30a050'}].map(({n,hr,c})=>`
+      <div class="blk-item">
+        <button class="blk-btn" aria-expanded="false" onclick="toggleBlk(this)">
+          <div class="blk-left"><span style="width:12px;height:12px;border-radius:50%;background:${c};box-shadow:0 0 6px ${c}88;flex-shrink:0;display:inline-block;"></span><span class="blk-name">${n}ブロ <span style="font-size:.78rem;color:rgba(255,255,255,.4);">(${hr})</span></span></div>
+          <span class="blk-chevron">▼</span>
+        </button>
+        <div class="blk-panel" style="border-color:${c}44;">
+          <div class="inner-item">
+            <button class="inner-btn" aria-expanded="false" onclick="toggleInner(this)"><div class="inner-left"><span>🎨</span><span class="inner-title">STイラスト・紹介文</span></div><span class="inner-chevron">▼</span></button>
+            <div class="inner-panel"><div class="illust-placeholder"><div class="ill-icon">🖼️</div><div>イラスト（仮置き）</div></div><div class="intro-placeholder">紹介文はここに掲載予定です。</div></div>
+          </div>
+          <div class="inner-item">
+            <button class="inner-btn" aria-expanded="false" onclick="toggleInner(this)"><div class="inner-left"><span>🎨</span><span class="inner-title">凸イラスト・紹介文</span></div><span class="inner-chevron">▼</span></button>
+            <div class="inner-panel"><div class="illust-placeholder"><div class="ill-icon">🖼️</div><div>イラスト（仮置き）</div></div><div class="intro-placeholder">紹介文はここに掲載予定です。</div></div>
+          </div>
+        </div>
+      </div>`).join('')}
+  `},
+  map:{num:'④',title:'校内案内図',html:`
+    <div style="margin-bottom:1rem;">
+      <div style="font-size:.8rem;color:rgba(255,200,100,.6);letter-spacing:.1em;margin-bottom:.8rem;">FLOOR MAP（仮置き）</div>
+      <div class="map-grid">
+        <div class="map-cell highlight">体育館</div><div class="map-cell">A棟</div><div class="map-cell">B棟</div><div class="map-cell">C棟</div>
+        <div class="map-cell">グラウンド</div><div class="map-cell highlight">食堂</div><div class="map-cell">図書室</div><div class="map-cell">職員室</div>
+        <div class="map-cell">正門</div><div class="map-cell">駐輪場</div><div class="map-cell highlight">救護室</div><div class="map-cell">トイレ</div>
+      </div>
+      <div class="modal-placeholder" style="min-height:120px;border:1px dashed rgba(255,255,255,.1);border-radius:12px;">
+        <div class="ph-icon" style="font-size:2rem;">🗺️</div><div class="ph-sub">実際の案内図画像をここに差し替え予定</div>
+      </div>
+    </div>`},
+  reserve:{num:'⑤',title:'（準備中）',html:`<div class="modal-placeholder"><div class="ph-icon">🔧</div><div class="ph-title">準備中</div><div class="ph-sub">このページは現在準備中です。</div></div>`}
+};
+
+// ===== MODAL =====
+function openModal(key){
+  closeDrawer();
+  if(key==='album_top'){ renderAlbumTopModal(); return; }
+  const page=MODAL_PAGES[key];
+  if(!page) return;
+  document.getElementById('modal-num').textContent=page.num;
+  document.getElementById('modal-title-text').textContent=page.title;
+  document.getElementById('modal-body').innerHTML=page.html;
+  animateModal();
+}
+function animateModal(){
+  const box=document.getElementById('modal-box');
+  box.style.animation='none';
+  requestAnimationFrame(()=>{box.style.animation='';});
+  document.getElementById('modal-overlay').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){
+  document.getElementById('modal-overlay').classList.remove('show');
+  document.body.style.overflow='';
+}
+function handleOverlayClick(e){if(e.target===document.getElementById('modal-overlay'))closeModal();}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+// ===== DRAWER =====
+function toggleDrawer(){
+  const d=document.getElementById('nav-drawer'),o=document.getElementById('nav-overlay'),b=document.getElementById('menuBtn'),l=document.getElementById('menuLabel');
+  const isOpen=d.classList.toggle('open');
+  o.classList.toggle('show',isOpen);b.classList.toggle('is-open',isOpen);
+  l.textContent=isOpen?'閉じる':'メニュー';
+}
+function closeDrawer(){
+  document.getElementById('nav-drawer').classList.remove('open');
+  document.getElementById('nav-overlay').classList.remove('show');
+  document.getElementById('menuBtn').classList.remove('is-open');
+  document.getElementById('menuLabel').textContent='メニュー';
+}
+
+// ===== DATA =====
+const DAYS=['日','月','火','水','木','金','土'];
+function loadSchedules(){try{return JSON.parse(localStorage.getItem('sakura_schedule_r8')||'[]');}catch(e){return[];}}
+function loadNotices(){try{return JSON.parse(localStorage.getItem('sakura_notices_r8')||'[]');}catch(e){return[];}}
+function saveSchedules(d){localStorage.setItem('sakura_schedule_r8',JSON.stringify(d));}
+function saveNotices(d){localStorage.setItem('sakura_notices_r8',JSON.stringify(d));}
+
+function renderSchedule(){
+  const list=loadSchedules();
+  const ul=document.getElementById('scheduleList');
+  document.getElementById('sch-count').textContent=list.length+'件';
+  if(!list.length){ul.innerHTML='<li style="padding:1.4rem 1.2rem;text-align:center;color:rgba(255,255,255,.25);font-size:.83rem;">日程はまだありません</li>';return;}
+  ul.innerHTML=list.map((item,i)=>{
+    const d=new Date(item.date+'T00:00:00');
+    return `<li class="schedule-item">
+      <div class="sch-date"><div class="sch-month">${d.getMonth()+1}月</div><div class="sch-day">${d.getDate()}</div><div class="sch-dow">${DAYS[d.getDay()]}</div></div>
+      <div class="sch-body"><div class="sch-title">${escHtml(item.title)}</div>${item.note?`<div class="sch-note">${escHtml(item.note)}</div>`:''}</div>
+      <button onclick="delSchedule(${i})" style="margin-left:auto;background:none;border:none;color:rgba(255,80,80,.4);cursor:pointer;font-size:1rem;flex-shrink:0;">✕</button>
+    </li>`;
+  }).join('');
+}
+
+const TAG_MAP={info:{cls:'tag-info',label:'お知らせ'},important:{cls:'tag-important',label:'重要'},update:{cls:'tag-update',label:'更新'}};
+function renderNotices(){
+  const list=loadNotices();
+  const ul=document.getElementById('noticeList');
+  document.getElementById('ntc-count').textContent=list.length+'件';
+  if(!list.length){ul.innerHTML='<li style="padding:1.4rem 1.2rem;text-align:center;color:rgba(255,255,255,.25);font-size:.83rem;">お知らせはまだありません</li>';return;}
+  ul.innerHTML=list.slice().reverse().map((item,ri)=>{
+    const i=list.length-1-ri;
+    const t=TAG_MAP[item.tag]||TAG_MAP.info;
+    return `<li class="notice-item">
+      <div class="notice-meta"><span class="notice-tag ${t.cls}">${t.label}</span><span class="notice-date">${item.date}</span>
+      <button onclick="delNotice(${i})" style="margin-left:auto;background:none;border:none;color:rgba(255,80,80,.4);cursor:pointer;font-size:.9rem;">✕</button></div>
+      <div class="notice-title">${escHtml(item.title)}</div>
+      ${item.body?`<div class="notice-body">${escHtml(item.body)}</div>`:''}
+    </li>`;
+  }).join('');
+}
+
+function addSchedule(){
+  const date=document.getElementById('schDate').value,title=document.getElementById('schTitle').value.trim(),note=document.getElementById('schNote').value.trim();
+  if(!date||!title){alert('日付とタイトルを入力してください');return;}
+  const list=loadSchedules();list.push({date,title,note});list.sort((a,b)=>a.date<b.date?-1:1);saveSchedules(list);
+  document.getElementById('schDate').value='';document.getElementById('schTitle').value='';document.getElementById('schNote').value='';
+  renderSchedule();
+}
+function delSchedule(i){if(!confirm('削除しますか？'))return;const list=loadSchedules();list.splice(i,1);saveSchedules(list);renderSchedule();}
+function addNotice(){
+  const tag=document.getElementById('ntcTag').value,title=document.getElementById('ntcTitle').value.trim(),body=document.getElementById('ntcBody').value.trim();
+  if(!title){alert('タイトルを入力してください');return;}
+  const now=new Date(),date=`${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}`;
+  const list=loadNotices();list.push({tag,title,body,date});saveNotices(list);
+  document.getElementById('ntcTitle').value='';document.getElementById('ntcBody').value='';
+  renderNotices();
+}
+function delNotice(i){if(!confirm('削除しますか？'))return;const list=loadNotices();list.splice(i,1);saveNotices(list);renderNotices();}
+
+function toggleAdmin(which){
+  const ids={sch:'schAdmin',ntc:'ntcAdmin'};
+  const tids={sch:'schToggle',ntc:'ntcToggle'};
+  const box=document.getElementById(ids[which]),tog=document.getElementById(tids[which]);
+  const open=box.classList.toggle('visible');tog.classList.toggle('open',open);
+}
+
+// ===== ALBUM =====
+const BLOCK_COLORS=['#e03030','#f07820','#d4c000','#e060a0','#40b8d8','#3060d0','#d8d8d8','#9040c0','#30a050'];
+
+function loadBlockAlbum(b){try{return JSON.parse(localStorage.getItem('sakura_album_r8_b'+b)||'[]');}catch(e){return[];}}
+function saveBlockAlbum(b,d){localStorage.setItem('sakura_album_r8_b'+b,JSON.stringify(d));}
+
+function renderAlbumBlockGrid(){
+  const grid=document.getElementById('albumBlockGrid');
+  let total=0;for(let b=1;b<=9;b++)total+=loadBlockAlbum(b).length;
+  document.getElementById('alb-count').textContent=total+'枚';
+  grid.innerHTML=Array.from({length:9},(_,i)=>{
+    const b=i+1,color=BLOCK_COLORS[i],count=loadBlockAlbum(b).length;
+    return `<button onclick="openBlockAlbum(${b})" style="background:rgba(255,255,255,.04);border:1px solid ${color}55;border-radius:12px;padding:1.1rem .5rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.5rem;transition:background .18s;font-family:inherit;"
+      onmouseover="this.style.background='rgba(255,255,255,.09)';this.style.borderColor='${color}aa';"
+      onmouseout="this.style.background='rgba(255,255,255,.04)';this.style.borderColor='${color}55';">
+      <span style="width:14px;height:14px;border-radius:50%;background:${color};box-shadow:0 0 8px ${color}99;display:block;"></span>
+      <span style="font-size:.9rem;color:rgba(255,255,255,.82);letter-spacing:.06em;">${b}ブロ</span>
+      <span style="font-size:.68rem;color:rgba(255,255,255,.3);">${count}枚</span>
+    </button>`;
+  }).join('');
+}
+
+function renderAlbumTopModal(){
+  document.getElementById('modal-num').textContent='📸';
+  document.getElementById('modal-title-text').textContent='凸アルバム';
+  document.getElementById('modal-body').innerHTML=`<div id="modalAlbumGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;"></div>`;
+  animateModal();
+  const grid=document.getElementById('modalAlbumGrid');
+  grid.innerHTML=Array.from({length:9},(_,i)=>{
+    const b=i+1,color=BLOCK_COLORS[i],count=loadBlockAlbum(b).length;
+    return `<button onclick="openBlockAlbum(${b})" style="background:rgba(255,255,255,.04);border:1px solid ${color}55;border-radius:12px;padding:1.1rem .5rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.5rem;transition:background .18s;font-family:inherit;"
+      onmouseover="this.style.background='rgba(255,255,255,.09)';this.style.borderColor='${color}aa';"
+      onmouseout="this.style.background='rgba(255,255,255,.04)';this.style.borderColor='${color}55';">
+      <span style="width:14px;height:14px;border-radius:50%;background:${color};box-shadow:0 0 8px ${color}99;display:block;"></span>
+      <span style="font-size:.9rem;color:rgba(255,255,255,.82);letter-spacing:.06em;">${b}ブロ</span>
+      <span style="font-size:.68rem;color:rgba(255,255,255,.3);">${count}枚</span>
+    </button>`;
+  }).join('');
+}
+
+function openBlockAlbum(block){
+  const color=BLOCK_COLORS[block-1];
+  const list=loadBlockAlbum(block);
+  const photosHtml=list.length===0
+    ?`<div style="padding:2rem;text-align:center;color:rgba(255,255,255,.25);font-size:.83rem;">まだ写真がありません</div>`
+    :`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-bottom:1.2rem;">
+        ${list.map((item,i)=>`
+          <div style="position:relative;border-radius:10px;overflow:hidden;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);">
+            <img src="${item.src}" alt="${escHtml(item.caption)}" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;cursor:pointer;" onclick="openBlockLightbox(${block},${i})"/>
+            ${item.caption?`<div style="padding:.3rem .45rem;font-size:.68rem;color:rgba(255,255,255,.4);">${escHtml(item.caption)}</div>`:''}
+            <button onclick="delBlockPhoto(${block},${i})" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.55);border:none;color:rgba(255,100,100,.8);cursor:pointer;font-size:.72rem;border-radius:4px;padding:.1rem .35rem;">✕</button>
+          </div>`).join('')}
+      </div>`;
+
+  document.getElementById('modal-num').textContent=`${block}ブロ`;
+  document.getElementById('modal-title-text').textContent=`凸アルバム — ${block}ブロック`;
+  document.getElementById('modal-body').innerHTML=`
+    <div>
+      <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:1.2rem;">
+        <span style="width:12px;height:12px;border-radius:50%;background:${color};box-shadow:0 0 7px ${color}99;display:inline-block;flex-shrink:0;"></span>
+        <span style="font-size:.8rem;color:rgba(255,255,255,.4);letter-spacing:.08em;">${list.length}枚</span>
+        <button onclick="renderAlbumTopModal()" style="margin-left:auto;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);font-size:.75rem;padding:.25rem .75rem;border-radius:6px;cursor:pointer;font-family:inherit;">← ブロック一覧</button>
+      </div>
+      ${photosHtml}
+      <div style="border-top:1px solid rgba(255,255,255,.07);padding-top:.9rem;">
+        <div class="admin-toggle" id="albToggle${block}" onclick="toggleBlockAdmin(${block})">
+          <svg viewBox="0 0 20 20"><path d="M5 8l5 5 5-5z"/></svg>
+          運営用：写真追加
+        </div>
+        <div class="admin-box" id="albAdmin${block}">
+          <div><label>画像ファイル（複数可）</label><input type="file" id="albFile${block}" accept="image/*" multiple style="padding:.4rem .6rem;"/></div>
+          <div><label>キャプション（任意）</label><input type="text" id="albCaption${block}" placeholder="例：練習風景"/></div>
+          <button class="admin-btn" onclick="addBlockPhotos(${block})">追加する</button>
+        </div>
+      </div>
+    </div>`;
+  animateModal();
+}
+
+function addBlockPhotos(block){
+  const files=document.getElementById('albFile'+block).files;
+  const caption=document.getElementById('albCaption'+block).value.trim();
+  if(!files.length){alert('画像を選択してください');return;}
+  const list=loadBlockAlbum(block);
+  let loaded=0;
+  Array.from(files).forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      list.push({src:e.target.result,caption});loaded++;
+      if(loaded===files.length){saveBlockAlbum(block,list);openBlockAlbum(block);renderAlbumBlockGrid();}
+    };
+    reader.readAsDataURL(file);
+  });
+  document.getElementById('albFile'+block).value='';
+  document.getElementById('albCaption'+block).value='';
+}
+function delBlockPhoto(block,i){
+  if(!confirm('削除しますか？'))return;
+  const list=loadBlockAlbum(block);list.splice(i,1);saveBlockAlbum(block,list);
+  openBlockAlbum(block);renderAlbumBlockGrid();
+}
+function toggleBlockAdmin(block){
+  const box=document.getElementById('albAdmin'+block),tog=document.getElementById('albToggle'+block);
+  const open=box.classList.toggle('visible');tog.classList.toggle('open',open);
+}
+function openBlockLightbox(block,i){
+  const item=loadBlockAlbum(block)[i];
+  const lb=document.createElement('div');
+  lb.id='lightbox';
+  lb.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:.8rem;padding:1rem;';
+  lb.innerHTML=`<img src="${item.src}" style="max-width:90vw;max-height:80svh;border-radius:10px;object-fit:contain;box-shadow:0 0 60px rgba(0,0,0,.6);"/>
+    ${item.caption?`<div style="color:rgba(255,255,255,.6);font-size:.85rem;letter-spacing:.06em;">${escHtml(item.caption)}</div>`:''}
+    <button onclick="document.getElementById('lightbox').remove()" style="position:fixed;top:1rem;right:1rem;background:rgba(255,255,255,.12);border:none;color:white;font-size:1.3rem;width:38px;height:38px;border-radius:50%;cursor:pointer;">✕</button>`;
+  lb.addEventListener('click',e=>{if(e.target===lb)lb.remove();});
+  document.body.appendChild(lb);
+}
+
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// ===== INIT =====
+renderSchedule();
+renderNotices();
+renderAlbumBlockGrid();
+
+if(!localStorage.getItem('_r8_seeded')){
+  localStorage.setItem('_r8_seeded','1');
+  const sl=[
+    {date:'2026-07-15',title:'実行委員会 第1回全体会議',note:'体育館 16:00〜'},
+    {date:'2026-09-01',title:'各クラス出展内容 締切',note:'担任へ提出'},
+    {date:'2026-09-23',title:'前日準備',note:''},
+    {date:'2026-09-24',title:'🌸 うんどう会 1日目',note:'8:30 開会'},
+    {date:'2026-09-25',title:'🌸 うんどう会 2日目',note:''},
+  ];
+  saveSchedules(sl);
+  const nl=[
+    {tag:'info',title:'うんどう会特設サイトを開設しました',body:'今年度のうんどう会情報をこちらでお届けします。',date:'2026/04/12'},
+    {tag:'important',title:'出展申込フォームを配布しました',body:'各クラス担任を通じてご確認ください。',date:'2026/04/12'},
+  ];
+  saveNotices(nl);
+  renderSchedule();renderNotices();
+}
+</script>
+</body>
+</html>
